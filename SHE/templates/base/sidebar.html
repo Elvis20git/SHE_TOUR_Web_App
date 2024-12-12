@@ -1,0 +1,271 @@
+{# base/sidebar.html #}
+{% load static %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
+<style>
+    /* Main sidebar styles */
+    .brand-logo a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .logo-icon {
+        width: 30px;
+        margin-right: 10px;
+    }
+
+    .logo-text {
+        color: white;
+        margin: 0;
+        font-size: 20px;
+    }
+
+    /* Main menu styles */
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-header {
+        color: rgba(255, 255, 255, 0.5);
+        padding: 15px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .sidebar-menu > li > a {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-menu > li > a:hover,
+    .sidebar-menu > li > a.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .sidebar-menu > li > a i {
+        font-size: 18px;
+        width: 25px;
+        margin-right: 10px;
+    }
+
+    /* Submenu styles */
+    .sub-menu {
+        list-style: none;
+        padding-left: 45px;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .sub-menu.show {
+        display: block;
+    }
+
+    .sub-menu li {
+        padding: 8px 0;
+    }
+
+    .sub-menu a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 14px;
+        display: block;
+        padding: 5px 0;
+        transition: color 0.3s ease;
+    }
+
+    .sub-menu a:hover,
+    .sub-menu a.active {
+        color: white;
+    }
+
+    /* Menu item with submenu */
+    .menu-item > a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 15px;
+    }
+
+    .menu-item > a > div {
+        display: flex;
+        align-items: center;
+    }
+
+    .menu-item > a i.zmdi-chevron-down {
+        font-size: 18px;
+        transition: transform 0.3s ease;
+    }
+
+    .menu-item > a i.zmdi-chevron-down.rotated {
+        transform: rotate(180deg);
+    }
+
+    /* Icons alignment */
+    .zmdi {
+        width: 25px;
+        text-align: center;
+        margin-right: 10px;
+    }
+    /* Logout section styles */
+.logout-section {
+    position: fixed;
+    bottom: 0;
+    width: 13%;
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: inherit;
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.logout-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 4px;
+}
+
+.logout-link i {
+    font-size: 18px;
+    width: 25px;
+    margin-right: 10px;
+}
+</style>
+
+<div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
+    <div class="brand-logo">
+        <a href="{% url 'dashboard' %}">
+            <img src="{% static 'images/logo-icon.png' %}" class="logo-icon" alt="logo icon">
+            <h5 class="logo-text">SHE TOUR</h5>
+        </a>
+    </div>
+    <ul class="sidebar-menu do-nicescrol">
+        <li class="sidebar-header">MAIN NAVIGATION</li>
+        {% if request.user.is_manager_or_above %}
+        <li>
+            <a href="{% url 'analytics_dashboard' %}" class="{% if 'analytics' in request.path %}active{% endif %}">
+                <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span>
+            </a>
+        </li>
+        {% endif %}
+        <li class="menu-item">
+            <a href="#" onclick="toggleSubmenu(event, this)" class="{% if 'observation' in request.path %}active{% endif %}">
+                <div>
+                    <i class="zmdi zmdi-assignment"></i> <span>Observations</span>
+                </div>
+                <i class="zmdi zmdi-chevron-down arrow-icon"></i>
+            </a>
+            <ul class="sub-menu {% if 'observation' in request.path %}show{% endif %}">
+    <li>
+        <a href="{% url 'observation_create' %}" class="{% if 'observation/create' in request.path %}active{% endif %}">
+            <span>New Observation</span>
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'observation_list' %}" class="{% if 'observation/list' in request.path %}active{% endif %}">
+            <span>View Observations</span>
+        </a>
+    </li>
+    {% if observation_id %}  {# Only show these if we have an observation context #}
+    <li>
+        <a href="{% url 'tracking_create' observation_id %}" class="{% if 'tracking/create' in request.path %}active{% endif %}">
+            <span>Add Tracking</span>
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'observation_update' observation_id %}" class="{% if 'observation/update' in request.path %}active{% endif %}">
+            <span>Edit Observation</span>
+        </a>
+    </li>
+    {% endif %}
+</ul>
+        </li>
+        <li class="menu-item">
+            <a href="#" onclick="toggleSubmenu(event, this)" class="{% if 'tracking' in request.path %}active{% endif %}">
+                <div>
+                    <i class="zmdi zmdi-format-list-numbered"></i> <span>Action Tracking</span>
+                </div>
+                <i class="zmdi zmdi-chevron-down arrow-icon"></i>
+            </a>
+            <ul class="sub-menu {% if 'tracking' in request.path %}show{% endif %}">
+                <li>
+                    <a href="{% url 'tracking_create_general' %}" class="{% if 'tracking/create' in request.path %}active{% endif %}">
+                        <span>New Action</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'tracking_list' %}" class="{% if 'tracking/list' in request.path %}active{% endif %}">
+                        <span>View All</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        {% if request.user.is_manager_or_above %}
+        <li>
+            <a href="{% url 'dashboard' %}" class="{% if 'analytics' in request.path %}active{% endif %}">
+                <i class="zmdi zmdi-chart"></i> <span>Report</span>
+            </a>
+        </li>
+        {% endif %}
+        <li>
+            <a href="{% url 'profile' %}" class="{% if 'notifications' in request.path %}active{% endif %}">
+                <i class="zmdi zmdi-user"></i> <span>Profile</span>
+            </a>
+        </li>
+    </ul>
+    <div class="logout-section">
+    <a href="{% url 'logout' %}" class="logout-link">
+        <i class="zmdi zmdi-power"></i>
+        <span>Logout</span>
+    </a>
+</div>
+</div>
+
+<script>
+function toggleSubmenu(event, element) {
+    event.preventDefault();
+    const submenu = element.nextElementSibling;
+    const arrow = element.querySelector('.arrow-icon');
+
+    // Toggle the submenu
+    submenu.classList.toggle('show');
+
+    // Rotate the arrow icon
+    arrow.classList.toggle('rotated');
+
+    // Update active states
+    const allSubmenus = document.querySelectorAll('.sub-menu');
+    allSubmenus.forEach(menu => {
+        if (menu !== submenu) {
+            menu.classList.remove('show');
+            menu.previousElementSibling.querySelector('.arrow-icon').classList.remove('rotated');
+        }
+    });
+}
+
+// Auto-expand menu if a child is active
+document.addEventListener('DOMContentLoaded', function() {
+    const activeSubmenuItem = document.querySelector('.sub-menu a.active');
+    if (activeSubmenuItem) {
+        const submenu = activeSubmenuItem.closest('.sub-menu');
+        const parentArrow = submenu.previousElementSibling.querySelector('.arrow-icon');
+        submenu.classList.add('show');
+        parentArrow.classList.add('rotated');
+    }
+});
+</script>

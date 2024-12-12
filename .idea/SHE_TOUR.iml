@@ -21,6 +21,9 @@
     <orderEntry type="library" name="material-design-iconic-font" level="application" />
     <orderEntry type="library" name="jquery-3.2.1.slim" level="application" />
     <orderEntry type="library" name="simple-line-icons" level="application" />
+    <orderEntry type="library" name="Chart.js" level="application" />
+    <orderEntry type="library" name="select2-bootstrap-5-theme" level="application" />
+    <orderEntry type="library" name="bootstrap-tagsinput" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />

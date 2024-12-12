@@ -1,0 +1,182 @@
+{# base/footer.html #}
+{% load static %}
+<footer class="footer">
+    <div class="container">
+        <div class="text-center">
+            Copyright © 2024 SHE TOUR
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only initialize pagination if there's a table on the page
+            if (document.querySelector('table')) {
+                initializePagination();
+            }
+        });
+
+        function initializePagination() {
+            // First, inject the pagination HTML
+            const paginationHTML = `
+                <div class="d-flex justify-content-between align-items-center p-3">
+                    <div class="pagination-info text-white">
+                        Showing <span id="startIndex">1</span> to <span id="endIndex">10</span> of <span id="totalItems">0</span> entries
+                    </div>
+                    <div class="pagination-container">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item" id="prevPage">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item" id="nextPage">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="items-per-page">
+                        <select id="itemsPerPage" class="form-control form-control-sm">
+                            <option value="5">5 per page</option>
+                            <option value="10" selected>10 per page</option>
+                            <option value="25">25 per page</option>
+                            <option value="50">50 per page</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            // Insert pagination before the first table's closing tag
+            const table = document.querySelector('table');
+            if (table) {
+                table.insertAdjacentHTML('afterend', paginationHTML);
+
+                const tableBody = table.querySelector('tbody');
+                const rows = Array.from(tableBody.querySelectorAll('tr'));
+                const itemsPerPageSelect = document.getElementById('itemsPerPage');
+                const prevPageBtn = document.getElementById('prevPage');
+                const nextPageBtn = document.getElementById('nextPage');
+                const startIndexSpan = document.getElementById('startIndex');
+                const endIndexSpan = document.getElementById('endIndex');
+                const totalItemsSpan = document.getElementById('totalItems');
+
+                let currentPage = 1;
+                let itemsPerPage = parseInt(itemsPerPageSelect.value);
+
+                function updatePaginationInfo() {
+                    const startIndex = (currentPage - 1) * itemsPerPage + 1;
+                    const endIndex = Math.min(startIndex + itemsPerPage - 1, rows.length);
+                    startIndexSpan.textContent = startIndex;
+                    endIndexSpan.textContent = endIndex;
+                    totalItemsSpan.textContent = rows.length;
+                }
+
+                function updatePaginationButtons() {
+                    const totalPages = Math.ceil(rows.length / itemsPerPage);
+                    prevPageBtn.classList.toggle('disabled', currentPage === 1);
+                    nextPageBtn.classList.toggle('disabled', currentPage === totalPages);
+
+                    // Update page numbers
+                    const paginationUl = document.querySelector('.pagination');
+                    const pageNumbers = document.querySelectorAll('.page-number');
+                    pageNumbers.forEach(num => num.remove());
+
+                    for (let i = 1; i <= totalPages; i++) {
+                        const li = document.createElement('li');
+                        li.className = `page-item page-number ${i === currentPage ? 'active' : ''}`;
+                        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                        li.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            currentPage = i;
+                            updateDisplay();
+                        });
+                        paginationUl.insertBefore(li, nextPageBtn);
+                    }
+                }
+
+                function updateDisplay() {
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+
+                    rows.forEach((row, index) => {
+                        row.style.display = (index >= startIndex && index < endIndex) ? '' : 'none';
+                    });
+
+                    updatePaginationInfo();
+                    updatePaginationButtons();
+                }
+
+                itemsPerPageSelect.addEventListener('change', function() {
+                    itemsPerPage = parseInt(this.value);
+                    currentPage = 1;
+                    updateDisplay();
+                });
+
+                prevPageBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                        currentPage--;
+                        updateDisplay();
+                    }
+                });
+
+                nextPageBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const totalPages = Math.ceil(rows.length / itemsPerPage);
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        updateDisplay();
+                    }
+                });
+
+                // Initial display
+                updateDisplay();
+            }
+        }
+    </script>
+
+    <!-- Pagination Styles -->
+    <style>
+        .pagination .page-link {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            margin: 0 2px;
+            border-radius: 4px;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .pagination .page-link:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .items-per-page select {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            border-radius: 4px;
+        }
+
+        .items-per-page select:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: none;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+        }
+    </style>
+</footer>

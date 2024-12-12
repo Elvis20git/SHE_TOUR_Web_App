@@ -1,0 +1,603 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block extra_css %}
+{{ block.super }}
+<!-- Required CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" rel="stylesheet" />
+<style>
+    /* Select2 Styling */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        min-height: 38px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 2px 8px;
+        margin: 4px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: white;
+        margin-right: 5px;
+    }
+
+    /* Bootstrap Tags Input Styling */
+    .bootstrap-tagsinput {
+        width: 100%;
+        min-height: 38px;
+        padding: 6px 12px;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    .bootstrap-tagsinput .tag {
+        background-color: #007bff;
+        color: white !important;
+        padding: 3px 8px;
+        margin: 2px;
+        border-radius: 3px;
+        display: inline-block;
+    }
+
+    .bootstrap-tagsinput input {
+        width: auto;
+        max-width: inherit;
+    }
+
+    .bootstrap-tagsinput .tag [data-role="remove"] {
+        margin-left: 8px;
+        cursor: pointer;
+        color: white;
+    }
+
+    .bootstrap-tagsinput .tag [data-role="remove"]:after {
+        content: "×";
+        padding: 0px 2px;
+    }
+
+    /* Tagged Members Container */
+    .tagged-members-container {
+        background-color: #f8f9fa;
+        border: 1px solid #ccc !important;
+        min-height: 100px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    /* General Form Styling */
+    .select2-container .select2-selection--single {
+        height: 38px !important;
+        border: 1px solid #ccc;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    .btn-close-white {
+        font-size: 0.7rem;
+        opacity: 0.7;
+    }
+
+    .btn-close-white:hover {
+        opacity: 1;
+    }
+
+    /* Attachment Styling */
+    .attachment-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem;
+    }
+
+    /* Form Validation Styling */
+    .is-invalid + .bootstrap-tagsinput {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Update Observation - SHE TOUR{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title text-center">Update SHE Tour Observation</div>
+                <hr>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Left Column -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Basic Information -->
+                            <div class="form-group mb-3">
+                                <label for="{{ form.department.id_for_label }}">Department</label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                <div class="invalid-feedback d-block">{{ form.department.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.date.id_for_label }}">Date</label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                <div class="invalid-feedback d-block">{{ form.date.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.time.id_for_label }}">Time</label>
+                                {{ form.time }}
+                                {% if form.time.errors %}
+                                <div class="invalid-feedback d-block">{{ form.time.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Tagged Members Section -->
+                            <div class="row mb-3">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label class="text-uppercase fw-bold">Tagged Members</label>
+            <div class="tagged-members-container border rounded p-2 mb-2" style="min-height: 100px; max-height: 200px; overflow-y: auto; background-color: #f8f9fa;">
+                {% for tag in group_members_tags %}
+                    <div class="tagged-member d-inline-block m-1">
+                        <span class="badge bg-primary d-flex align-items-center">
+                            @{{ tag }}
+                            <button type="button" class="btn-close btn-close-white ms-2 btn-sm"
+                                    onclick="removeMemberTag('{{ tag|escapejs }}')">
+                            </button>
+                        </span>
+                    </div>
+                {% empty %}
+                <div class="text-muted small p-2">No members tagged</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="{{ form.groupMembers_tags.id_for_label }}" class="form-label">Add Member Tags</label>
+                {{ form.groupMembers_tags }}
+                <small class="form-text text-muted">Enter member usernames (press Enter or comma to add)</small>
+                {% if form.groupMembers_tags.errors %}
+                <div class="invalid-feedback d-block">{{ form.groupMembers_tags.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+                            <!-- Group Members Tags -->
+{#                            <div class="form-group mb-3">#}
+{#                                <label for="{{ form.groupMembers_tags.id_for_label }}" class="text-uppercase fw-bold">Additional Member Tags</label>#}
+{#                                {{ form.groupMembers_tags }}#}
+{#                                <small class="form-text text-muted">Enter additional member tags (press Enter or comma to add)</small>#}
+{#                                {% if form.groupMembers_tags.errors %}#}
+{#                                <div class="invalid-feedback d-block">{{ form.groupMembers_tags.errors }}</div>#}
+{#                                {% endif %}#}
+{#                            </div>#}
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label>Reporter</label>
+                                <input type="text" class="form-control" value="{{ observation.reporter.get_full_name }}" readonly>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.priority.id_for_label }}">Priority</label>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                <div class="invalid-feedback d-block">{{ form.priority.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.area.id_for_label }}">Area</label>
+                                {{ form.area }}
+                                {% if form.area.errors %}
+                                <div class="invalid-feedback d-block">{{ form.area.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.issue_type.id_for_label }}">Issue Type</label>
+                                {{ form.issue_type }}
+                                {% if form.issue_type.errors %}
+                                <div class="invalid-feedback d-block">{{ form.issue_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issue Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="{{ form.nature_of_issue.id_for_label }}">Nature of Issue</label>
+                                {{ form.nature_of_issue }}
+                                {% if form.nature_of_issue.errors %}
+                                <div class="invalid-feedback d-block">{{ form.nature_of_issue.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.tags.id_for_label }}">Tags</label>
+                                {{ form.tags }}
+                                <small class="form-text text-muted">Enter comma-separated tags for easier searching</small>
+                                {% if form.tags.errors %}
+                                <div class="invalid-feedback d-block">{{ form.tags.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="{{ form.corrective_action.id_for_label }}">Corrective Action</label>
+                                {{ form.corrective_action }}
+                                {% if form.corrective_action.errors %}
+                                <div class="invalid-feedback d-block">{{ form.corrective_action.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.location_details.id_for_label }}">Location Details</label>
+                                {{ form.location_details }}
+                                {% if form.location_details.errors %}
+                                <div class="invalid-feedback d-block">{{ form.location_details.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attachments Section -->
+                    {% if observation.attachments.all %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label>Current Attachments</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for attachment in observation.attachments.all %}
+                                <div class="attachment-item">
+                                    <a href="{{ attachment.file.url }}" target="_blank" class="btn btn-sm btn-info">
+                                        {{ attachment.file.name|slice:"11:" }}
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger delete-attachment"
+                                            data-attachment-id="{{ attachment.id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="{{ form.attachments.id_for_label }}">Add New Attachments</label>
+                                {{ form.attachments }}
+                                <small class="form-text text-muted">Upload relevant images or documents (max 5MB each)</small>
+                                {% if form.attachments.errors %}
+                                <div class="invalid-feedback d-block">{{ form.attachments.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-light px-5">
+                                    <i class="icon-lock"></i> Update Observation
+                                </button>
+                                <a href="{% url 'observation_list' %}" class="btn btn-secondary px-5">
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
+<script>
+$(document).ready(function() {
+    // ============= Select2 Initialization =============
+    function setupSelect2() {
+        $('.select2-users').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: 'Search and select team members...',
+            allowClear: true,
+            ajax: {
+                url: '{% url "user_search" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term || '',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function(data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: {
+                            more: data.pagination.more
+                        }
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2,
+            templateResult: formatUser,
+            templateSelection: formatUserSelection,
+            escapeMarkup: function(markup) {
+                return markup;
+            }
+        }).on('select2:select', function(e) {
+            // Extract username from parentheses and add as tag
+            var username = e.params.data.text.match(/\((.*?)\)/)?.[1];
+            if (username) {
+                var $groupMembersTags = $('#{{ form.groupMembers_tags.id_for_label }}');
+                $groupMembersTags.tagsinput('add', username);
+            }
+            $(this).val(null).trigger('change'); // Clear selection after tagging
+        });
+    }
+
+    function formatUser(user) {
+        if (user.loading) {
+            return '<div class="loading-message">Searching...</div>';
+        }
+        if (!user.text) return '';
+        return '<div class="user-result">' +
+               '<div class="user-name">' + user.text + '</div>' +
+               '</div>';
+    }
+
+    function formatUserSelection(user) {
+        return user.text || '';
+    }
+
+    // ============= Member Tags Management =============
+    function setupGroupMembersTags() {
+        var $groupMembersTags = $('#{{ form.groupMembers_tags.id_for_label }}');
+
+        $groupMembersTags.tagsinput({
+            trimValue: true,
+            confirmKeys: [13, 44], // Enter and comma
+            maxTags: 10
+        });
+
+        // Initialize with existing tags
+        {% if observation.groupMembers_tags %}
+            {% for tag in observation.groupMembers_tags %}
+                $groupMembersTags.tagsinput('add', '{{ tag|escapejs }}');
+            {% endfor %}
+        {% endif %}
+
+        // Prevent spaces in tags
+        $groupMembersTags.on('beforeItemAdd', function(event) {
+            if (event.item.includes(' ')) {
+                event.cancel = true;
+                showNotification('Tags cannot contain spaces', 'warning');
+            }
+        });
+
+        // Handle max tags limit
+        $groupMembersTags.on('beforeItemAdd', function(event) {
+            if ($(this).tagsinput('items').length >= 10) {
+                event.cancel = true;
+                showNotification('Maximum 10 tags allowed', 'warning');
+            }
+        });
+
+        // Prevent duplicate tags
+        $groupMembersTags.on('beforeItemAdd', function(event) {
+            var existingTags = $(this).tagsinput('items');
+            if (existingTags.includes(event.item)) {
+                event.cancel = true;
+                showNotification('This tag already exists', 'warning');
+            }
+        });
+
+        // Trigger change event for form tracking
+        $groupMembersTags.on('itemAdded itemRemoved', function() {
+            $(this).trigger('change');
+            updateTagsDisplay();
+        });
+    }
+
+    function updateTagsDisplay() {
+        var $container = $('.tagged-members-container');
+        var $input = $('#{{ form.groupMembers_tags.id_for_label }}');
+        var tags = $input.tagsinput('items');
+
+        $container.empty();
+
+        if (tags.length === 0) {
+            $container.append('<div class="text-muted small p-2">No members tagged</div>');
+        } else {
+            tags.forEach(function(tag) {
+                var tagHtml = `
+                    <div class="tagged-member d-inline-block m-1">
+                        <span class="badge bg-primary d-flex align-items-center">
+                            @${tag}
+                            <button type="button" class="btn-close btn-close-white ms-2 btn-sm"
+                                    onclick="removeMemberTag('${tag}')">
+                            </button>
+                        </span>
+                    </div>`;
+                $container.append(tagHtml);
+            });
+        }
+    }
+
+    // Function to remove a tag
+    window.removeMemberTag = function(tag) {
+        var $input = $('#{{ form.groupMembers_tags.id_for_label }}');
+        $input.tagsinput('remove', tag);
+    };
+
+    // ============= File Upload Handling =============
+    function setupFileUploadValidation() {
+        $('#{{ form.attachments.id_for_label }}').on('change', function() {
+            var files = $(this)[0].files;
+            var fileSize = 5 * 1024 * 1024; // 5MB
+            var allowedTypes = [
+                'image/jpeg', 'image/png', 'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].size > fileSize) {
+                    showNotification(`File ${files[i].name} is too large. Maximum size is 5MB.`, 'error');
+                    $(this).val('');
+                    return;
+                }
+                if (!allowedTypes.includes(files[i].type)) {
+                    showNotification(`File ${files[i].name} has an invalid type. Allowed types are: JPG, PNG, PDF, DOC, DOCX`, 'error');
+                    $(this).val('');
+                    return;
+                }
+            }
+        });
+    }
+
+    // ============= Attachment Management =============
+    function setupAttachmentDeletion() {
+        $('.delete-attachment').on('click', function() {
+            if (confirm('Are you sure you want to delete this attachment?')) {
+                var attachmentId = $(this).data('attachment-id');
+                var button = $(this);
+
+                $.ajax({
+                    url: '{% url "delete_attachment" %}',
+                    type: 'POST',
+                    data: {
+                        'attachment_id': attachmentId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            button.closest('.attachment-item').remove();
+                            showNotification('Attachment deleted successfully', 'success');
+                        } else {
+                            showNotification(response.error || 'Error deleting attachment', 'error');
+                        }
+                    },
+                    error: function() {
+                        showNotification('Error connecting to server', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    // ============= Form Validation =============
+    function setupFormValidation() {
+        $('form').on('submit', function(e) {
+            var requiredFields = [
+                '{{ form.department.id_for_label }}',
+                '{{ form.date.id_for_label }}',
+                '{{ form.time.id_for_label }}',
+                '{{ form.area.id_for_label }}',
+                '{{ form.nature_of_issue.id_for_label }}',
+                '{{ form.issue_type.id_for_label }}'
+            ];
+
+            var isValid = true;
+
+            // Check required fields
+            requiredFields.forEach(function(fieldId) {
+                var field = $('#' + fieldId);
+                if (!field.val()) {
+                    isValid = false;
+                    field.addClass('is-invalid');
+                    if (!field.next('.invalid-feedback').length) {
+                        field.after('<div class="invalid-feedback">This field is required.</div>');
+                    }
+                } else {
+                    field.removeClass('is-invalid');
+                    field.next('.invalid-feedback').remove();
+                }
+            });
+
+            // Validate group member tags
+            var $groupMembersTags = $('#{{ form.groupMembers_tags.id_for_label }}');
+            var tags = $groupMembersTags.tagsinput('items');
+            if (tags.some(tag => /\s/.test(tag))) {
+                isValid = false;
+                $groupMembersTags.addClass('is-invalid');
+                showNotification('Please remove any member tags containing spaces', 'error');
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                showNotification('Please correct the errors before submitting.', 'error');
+                return false;
+            }
+        });
+    }
+
+    // ============= Notifications =============
+    function showNotification(message, type = 'info') {
+        // You can replace this with your preferred notification system
+        if (type === 'error') {
+            alert(message);
+        } else {
+            console.log(type + ': ' + message);
+        }
+    }
+
+    // ============= Initialize Everything =============
+    function initializeAll() {
+        setupSelect2();
+        setupGroupMembersTags();
+        setupFileUploadValidation();
+        setupAttachmentDeletion();
+        setupFormValidation();
+        // Initial tags display
+        updateTagsDisplay();
+    }
+
+    // Start initialization
+    initializeAll();
+});
+</script>
+{% endblock %}

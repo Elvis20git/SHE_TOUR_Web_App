@@ -1,0 +1,170 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}SHE TOUR Dashboard{% endblock %}
+
+{% block content %}
+<!--Start Dashboard Content-->
+{#<div class="card mt-3">#}
+{#    <div class="card-content">#}
+{#        <div class="row row-group m-0">#}
+{#            <div class="col-12 col-lg-6 col-xl-3 border-light">#}
+{#                <div class="card-body">#}
+{#                    <h5 class="text-white mb-0">{{ total_observations }} <span class="float-right"><i class="zmdi zmdi-eye"></i></span></h5>#}
+{#                    <div class="progress my-3" style="height:3px;">#}
+{#                        <div class="progress-bar" style="width:100%"></div>#}
+{#                    </div>#}
+{#                    <p class="mb-0 text-white small-font">Total Observations</p>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="col-12 col-lg-6 col-xl-3 border-light">#}
+{#                <div class="card-body">#}
+{#                    <h5 class="text-white mb-0">{{ pending_observations }} <span class="float-right"><i class="zmdi zmdi-time"></i></span></h5>#}
+{#                    <div class="progress my-3" style="height:3px;">#}
+{#                        <div class="progress-bar" style="width:{{ pending_percentage }}%"></div>#}
+{#                    </div>#}
+{#                    <p class="mb-0 text-white small-font">Pending Observations <span class="float-right">{{ pending_percentage }}%</span></p>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="col-12 col-lg-6 col-xl-3 border-light">#}
+{#                <div class="card-body">#}
+{#                    <h5 class="text-white mb-0">{{ high_priority_count }} <span class="float-right"><i class="zmdi zmdi-alert-triangle"></i></span></h5>#}
+{#                    <div class="progress my-3" style="height:3px;">#}
+{#                        <div class="progress-bar" style="width:{{ high_priority_percentage }}%"></div>#}
+{#                    </div>#}
+{#                    <p class="mb-0 text-white small-font">High Priority Issues <span class="float-right">{{ high_priority_percentage }}%</span></p>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="col-12 col-lg-6 col-xl-3 border-light">#}
+{#                <div class="card-body">#}
+{#                    <h5 class="text-white mb-0">{{ resolved_count }} <span class="float-right"><i class="zmdi zmdi-check-circle"></i></span></h5>#}
+{#                    <div class="progress my-3" style="height:3px;">#}
+{#                        <div class="progress-bar" style="width:{{ resolved_percentage }}%"></div>#}
+{#                    </div>#}
+{#                    <p class="mb-0 text-white small-font">Resolved Issues <span class="float-right">{{ resolved_percentage }}%</span></p>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+
+{#<div class="row">#}
+{#    <div class="col-12 col-lg-8 col-xl-8">#}
+{#        <div class="card" style="height: 95%">#}
+{#    <div class="card-header">Observations Trend#}
+{#        <div class="card-action">#}
+{#            <div class="dropdown">#}
+{#                <a href="javascript:void(0);" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">#}
+{#                    <i class="icon-options"></i>#}
+{#                </a>#}
+{#                <div class="dropdown-menu dropdown-menu-right">#}
+{#                    <a class="dropdown-item" href="#">Last 7 Days</a>#}
+{#                    <a class="dropdown-item" href="#">Last 30 Days</a>#}
+{#                    <a class="dropdown-item" href="#">This Month</a>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#</div>#}
+{#    </div>#}
+{##}
+{#    <div class="col-12 col-lg-4 col-xl-4">#}
+{#        <div class="card">#}
+{#            <div class="card-header">Issue Types Distribution#}
+{#                <div class="card-action">#}
+{#                    <div class="dropdown">#}
+{#                        <a href="javascript:void(0);" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">#}
+{#                            <i class="icon-options"></i>#}
+{#                        </a>#}
+{#                        <div class="dropdown-menu dropdown-menu-right">#}
+{#                            <a class="dropdown-item" href="#">This Week</a>#}
+{#                            <a class="dropdown-item" href="#">This Month</a>#}
+{#                            <a class="dropdown-item" href="#">This Year</a>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="card-body">#}
+{#                <div class="chart-container-2" style="position: relative; height: 300px;">#}
+{#                    <canvas id="priorityChart"></canvas>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="table-responsive">#}
+{#                <table class="table align-items-center">#}
+{#                    <tbody>#}
+{#                        <tr>#}
+{#                            <td><i class="fa fa-circle text-white mr-2"></i>Unsafe Condition</td>#}
+{#                            <td>{{ unsafe_condition_count }}</td>#}
+{#                            <td>{{ unsafe_condition_percentage }}%</td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <td><i class="fa fa-circle text-light-1 mr-2"></i>Near Miss</td>#}
+{#                            <td>{{ near_miss_count }}</td>#}
+{#                            <td>{{ near_miss_percentage }}%</td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <td><i class="fa fa-circle text-light-2 mr-2"></i>BBS</td>#}
+{#                            <td>{{ bbs_count }}</td>#}
+{#                            <td>{{ bbs_percentage }}%</td>#}
+{#                        </tr>#}
+{#                    </tbody>#}
+{#                </table>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{##}
+{#<div class="row">#}
+{#    <div class="col-12">#}
+{#        <div class="card">#}
+{#            <div class="card-header">Recent Observations#}
+{#                <div class="card-action">#}
+{#                    <a href="{% url 'observation_list' %}" class="btn btn-light">View All</a>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="table-responsive">#}
+{#                <table class="table align-items-center table-flush table-borderless">#}
+{#                    <thead>#}
+{#                        <tr>#}
+{#                            <th>Department</th>#}
+{#                            <th>Reporter</th>#}
+{#                            <th>Issue Type</th>#}
+{#                            <th>Priority</th>#}
+{#                            <th>Date</th>#}
+{#                            <th>Status</th>#}
+{#                        </tr>#}
+{#                    </thead>#}
+{#                    <tbody>#}
+{#                        {% for observation in recent_observations %}#}
+{#                        <tr>#}
+{#                            <td>{{ observation.department }}</td>#}
+{#                            <td>{{ observation.reporter.get_full_name }}</td>#}
+{#                            <td>{{ observation.get_issue_type_display }}</td>#}
+{#                            <td>#}
+{#                                <span class="badge {% if observation.priority == 'high' %}badge-danger{% elif observation.priority == 'medium' %}badge-warning{% else %}badge-info{% endif %}">#}
+{#                                    {{ observation.get_priority_display }}#}
+{#                                </span>#}
+{#                            </td>#}
+{#                            <td>{{ observation.date }}</td>#}
+{#                            <td>#}
+{#                                <div class="progress shadow" style="height: 3px;">#}
+{#                                    <div class="progress-bar" role="progressbar"#}
+{#                                         style="width: {% if observation.status == 'closed' %}100{% elif observation.status == 'in_progress' %}50{% else %}25{% endif %}%">#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                        {% endfor %}#}
+{#                    </tbody>#}
+{#                </table>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock %}

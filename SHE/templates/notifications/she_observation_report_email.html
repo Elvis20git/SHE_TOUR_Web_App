@@ -1,0 +1,87 @@
+<!-- templates/she_observation_report_email.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .summary-section {
+            margin-bottom: 30px;
+        }
+        .priority-high {
+            color: red;
+        }
+        .priority-medium {
+            color: orange;
+        }
+        .priority-low {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Daily SHE Observation Report - {{ date }}</h1>
+
+    <div class="summary-section">
+        <h2>Summary Statistics</h2>
+        <p>Total Observations: {{ stats.total_observations }}</p>
+
+        <h3>By Priority</h3>
+        <ul>
+            <li>High: {{ stats.by_priority.high|default:0 }}</li>
+            <li>Medium: {{ stats.by_priority.medium|default:0 }}</li>
+            <li>Low: {{ stats.by_priority.low|default:0 }}</li>
+        </ul>
+
+        <h3>By Status</h3>
+        <ul>
+            <li>Pending: {{ stats.by_status.pending|default:0 }}</li>
+            <li>In Progress: {{ stats.by_status.in_progress|default:0 }}</li>
+            <li>Resolved: {{ stats.by_status.closed|default:0 }}</li>
+        </ul>
+    </div>
+
+    <h2>Detailed Observations</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Department</th>
+                <th>Issue Type</th>
+                <th>Nature of Issue</th>
+                <th>Area</th>
+                <th>Priority</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obs in observations %}
+            <tr>
+                <td>{{ obs.time }}</td>
+                <td>{{ obs.department }}</td>
+                <td>{{ obs.get_issue_type_display }}</td>
+                <td>{{ obs.nature_of_issue }}</td>
+                <td>{{ obs.get_area_display }}</td>
+                <td class="priority-{{ obs.priority }}">{{ obs.get_priority_display }}</td>
+                <td>{{ obs.get_status_display }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p>
+        Note: A detailed CSV report is attached to this email for further analysis.
+    </p>
+</body>
+</html>

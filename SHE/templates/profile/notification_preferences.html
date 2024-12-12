@@ -1,0 +1,98 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Notification Preferences</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <div class="mb-4">
+                                <h5 class="text-muted mb-3">Notification Channels</h5>
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="email_notifications"
+                                           name="email_notifications" {% if form.email_notifications.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="email_notifications">
+                                        Receive Email Notifications
+                                    </label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="push_notifications"
+                                           name="push_notifications" {% if form.push_notifications.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="push_notifications">
+                                        Receive Push Notifications
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="text-muted mb-3">Notification Triggers</h5>
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="notify_on_assignment"
+                                           name="notify_on_assignment" {% if form.notify_on_assignment.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="notify_on_assignment">
+                                        Notify when assigned to tasks
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="notify_on_status_change"
+                                           name="notify_on_status_change" {% if form.notify_on_status_change.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="notify_on_status_change">
+                                        Notify on task status changes
+                                    </label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="notify_before_deadline"
+                                           name="notify_before_deadline" {% if form.notify_before_deadline.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="notify_before_deadline">
+                                        Notify before deadlines
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h5 class="text-muted mb-3">Reminder Settings</h5>
+                                <div class="form-group mb-3">
+                                    <label for="reminder_frequency">Reminder Frequency (days)</label>
+                                    <input type="number" class="form-control" id="reminder_frequency"
+                                           name="reminder_frequency" min="1" max="30"
+                                           value="{{ form.reminder_frequency.value }}">
+                                    <small class="form-text text-muted">How often to receive reminders (1-30 days)</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="deadline_reminder_days">Deadline Reminder (days before)</label>
+                                    <input type="number" class="form-control" id="deadline_reminder_days"
+                                           name="deadline_reminder_days" min="1"
+                                           value="{{ form.deadline_reminder_days.value }}">
+                                    <small class="form-text text-muted">How many days before a deadline to send a reminder</small>
+                                </div>
+                            </div>
+
+                            {% if messages %}
+                            <div class="mb-4">
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary">Save Preferences</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

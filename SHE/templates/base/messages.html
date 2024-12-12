@@ -1,0 +1,117 @@
+{# base/messages.html #}
+{% if messages %}
+<style>
+    .message-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+        max-width: 350px;
+    }
+
+    .message-popup {
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        animation: slideIn 0.5s ease-out forwards;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .message-popup::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+    }
+
+    .message-popup.success {
+        background-color: #f0fdf4;
+        color: #166534;
+    }
+
+    .message-popup.success::before {
+        background-color: #22c55e;
+    }
+
+    .message-popup.error {
+        background-color: #fef2f2;
+        color: #991b1b;
+    }
+
+    .message-popup.error::before {
+        background-color: #ef4444;
+    }
+
+    .message-popup.warning {
+        background-color: #fffbeb;
+        color: #92400e;
+    }
+
+    .message-popup.warning::before {
+        background-color: #f59e0b;
+    }
+
+    .message-popup.info {
+        background-color: #f0f9ff;
+        color: #075985;
+    }
+
+    .message-popup.info::before {
+        background-color: #0ea5e9;
+    }
+
+    .close-button {
+        position: absolute;
+        right: 0.75rem;
+        top: 0.75rem;
+        background: transparent;
+        border: none;
+        color: currentColor;
+        opacity: 0.5;
+        cursor: pointer;
+        padding: 0.25rem;
+        transition: opacity 0.2s;
+    }
+
+    .close-button:hover {
+        opacity: 1;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+</style>
+
+<div class="message-container">
+    {% for message in messages %}
+    <div class="message-popup {{ message.tags }}" role="alert">
+        {{ message }}
+        <button type="button" class="close-button" onclick="this.parentElement.style.animation='fadeOut 0.3s forwards';">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 4L12 12M4 12L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

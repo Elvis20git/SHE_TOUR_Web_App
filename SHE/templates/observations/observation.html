@@ -1,0 +1,696 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block extra_css %}
+{{ block.super }}
+<!-- Add Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<!-- Add Bootstrap Tags Input CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" rel="stylesheet" />
+
+    <style>
+    /* Basic Select2 styling */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #e4e6e8;
+        border-radius: 4px;
+        min-height: 38px;
+    }
+
+    /* Selected items styling */
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #0d6efd;
+        border: none;
+        color: white;
+        border-radius: 15px;
+        padding: 2px 8px;
+        margin: 3px;
+    }
+
+    /* Remove button styling */
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: white;
+        margin-right: 5px;
+        border-right: none;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        background: none;
+        color: #ffcccc;
+    }
+
+    /* Search box styling */
+    .select2-search__field {
+        padding: 6px !important;
+    }
+
+    /* Dropdown styling */
+    .select2-dropdown {
+        border: 1px solid #e4e6e8;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .select2-results__option {
+        padding: 8px 12px;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #0d6efd;
+    }
+
+    /* Placeholder */
+    .select2-container--default .select2-search--inline .select2-search__field::placeholder {
+        color: #6c757d;
+    }
+    /* Bootstrap Tags Input styling */
+    .bootstrap-tagsinput {
+        width: 100%;
+        min-height: 38px;
+        padding: 6px 12px;
+        border: 1px solid #e4e6e8;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+
+    .bootstrap-tagsinput .tag {
+        background-color: #0d6efd;
+        color: white;
+        border-radius: 15px;
+        padding: 2px 8px;
+        margin: 2px;
+        display: inline-block;
+    }
+
+    .bootstrap-tagsinput input {
+        border: none;
+        box-shadow: none;
+        outline: none;
+        background-color: transparent;
+        padding: 0;
+        margin: 0;
+        width: auto;
+        max-width: inherit;
+    }
+
+    /* Add visual feedback for validation */
+    .is-invalid + .bootstrap-tagsinput {
+        border-color: #dc3545;
+    }
+</style>
+{% endblock %}
+{% block title %}Create Observation - SHE TOUR{% endblock %}
+
+{% block content %}
+<div class="row mt-3">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title text-center">SHE Tour Observation</div>
+                <hr>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.department.id_for_label }}">Department</label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                <div class="invalid-feedback d-block">{{ form.department.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.date.id_for_label }}">Date</label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                <div class="invalid-feedback d-block">{{ form.date.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.time.id_for_label }}">Time</label>
+                                {{ form.time }}
+                                {% if form.time.errors %}
+                                <div class="invalid-feedback d-block">{{ form.time.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.group_members.id_for_label }}">Tag Team Members</label>
+                                {{ form.group_members }}
+                                <small class="form-text text-muted">Search and select team members</small>
+                                {% if form.group_members.errors %}
+                                <div class="invalid-feedback d-block">{{ form.group_members.errors }}</div>
+                                {% endif %}
+                                <!-- Hidden input to store the selected members -->
+                                <input type="hidden" name="selected_members" id="selected_members_data" value="">
+                            </div>
+                            <!-- Group Members Tags -->
+                            <div class="form-group mb-3">
+                                <label for="{{ form.groupMembers_tags.id_for_label }}">Additional Member Tags</label>
+                                {{ form.groupMembers_tags }}
+                                <small class="form-text text-muted">Selected members will be added here automatically</small>
+                                {% if form.groupMembers_tags.errors %}
+                                <div class="invalid-feedback d-block">{{ form.groupMembers_tags.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Reporter</label>
+                                <input type="text" class="form-control" value="{{ request.user.get_full_name }}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.priority.id_for_label }}">Priority</label>
+                                {{ form.priority }}
+                                {% if form.priority.errors %}
+                                <div class="invalid-feedback d-block">{{ form.priority.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.area.id_for_label }}">Area</label>
+                                {{ form.area }}
+                                <div class="custom-input-container" style="display: none;">
+                                    {{ form.area_custom }}
+                                </div>
+                                {% if form.area.errors %}
+                                <div class="invalid-feedback d-block">{{ form.area.errors }}</div>
+                                {% endif %}
+                                {% if form.area_custom.errors %}
+                                <div class="invalid-feedback d-block">{{ form.area_custom.errors }}</div>
+                                {% endif %}
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="{{ form.issue_type.id_for_label }}">Issue Type</label>
+                                {{ form.issue_type }}
+                                {% if form.issue_type.errors %}
+                                <div class="invalid-feedback d-block">{{ form.issue_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.nature_of_issue.id_for_label }}">Nature of Issue</label>
+                                {{ form.nature_of_issue }}
+                                {% if form.nature_of_issue.errors %}
+                                <div class="invalid-feedback d-block">{{ form.nature_of_issue.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.tags.id_for_label }}">Tags</label>
+                                {{ form.tags }}
+                                <div class="custom-input-container" style="display: none;">
+                                    {{ form.tags_custom }}
+                                </div>
+                                <small class="form-text text-muted">Select from predefined tags or enter custom ones</small>
+                                {% if form.tags.errors %}
+                                <div class="invalid-feedback d-block">{{ form.tags.errors }}</div>
+                                {% endif %}
+                                {% if form.tags_custom.errors %}
+                                <div class="invalid-feedback d-block">{{ form.tags_custom.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.corrective_action.id_for_label }}">Corrective Action</label>
+                                {{ form.corrective_action }}
+                                {% if form.corrective_action.errors %}
+                                <div class="invalid-feedback d-block">{{ form.corrective_action.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.location_details.id_for_label }}">Location Details</label>
+                                {{ form.location_details }}
+                                {% if form.location_details.errors %}
+                                <div class="invalid-feedback d-block">{{ form.location_details.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="{{ form.attachments.id_for_label }}">Attachments</label>
+                                {{ form.attachments }}
+                                <small class="form-text text-muted">Upload relevant images or documents (max 5MB each)</small>
+                                {% if form.attachments.errors %}
+                                <div class="invalid-feedback d-block">{{ form.attachments.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-light px-5">
+                                    <i class="icon-lock"></i> Submit Observation
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<!-- Add Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Add Bootstrap Tags Input JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
+<script>
+    $(document).ready(function() {
+    // ============= Date and Time Initialization =============
+    function initializeDateAndTime() {
+        var today = new Date().toISOString().split('T')[0];
+        var now = new Date().toLocaleTimeString('en-US', { hour12: false });
+        $('#{{ form.date.id_for_label }}').val(today);
+        $('#{{ form.time.id_for_label }}').val(now);
+    }
+
+    // ============= File Upload Handling =============
+    function setupFileUploadValidation() {
+        $('#{{ form.attachments.id_for_label }}').on('change', function() {
+            var files = $(this)[0].files;
+            var fileSize = 5 * 1024 * 1024; // 5MB
+            var allowedTypes = [
+                'image/jpeg', 'image/png', 'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].size > fileSize) {
+                    showNotification('File ' + files[i].name + ' is too large. Maximum size is 5MB.', 'error');
+                    $(this).val('');
+                    return;
+                }
+                if (!allowedTypes.includes(files[i].type)) {
+                    showNotification('File ' + files[i].name + ' has an invalid type. Allowed types are: JPG, PNG, PDF, DOC, DOCX', 'error');
+                    $(this).val('');
+                    return;
+                }
+            }
+        });
+    }
+
+    // ============= Member Management Functions =============
+    function getSelectedMembers() {
+        var $selectedMembersData = $('#selected_members_data');
+        try {
+            return JSON.parse($selectedMembersData.val() || '[]');
+        } catch (e) {
+            console.error('Error parsing selected members:', e);
+            return [];
+        }
+    }
+
+    function updateSelectedMembers(members) {
+        $('#selected_members_data').val(JSON.stringify(members));
+        $('#selected_members_data').trigger('change');
+    }
+
+    function addSelectedMember(memberData) {
+        var $groupMembersTags = $('#{{ form.groupMembers_tags.id_for_label }}');
+        var selectedMembers = getSelectedMembers();
+
+        // Extract username from the parentheses
+        var username = memberData.text.match(/\((.*?)\)/)?.[1];
+        if (!username) {
+            showNotification('Invalid member format - username not found', 'error');
+            return;
+        }
+
+        var member = {
+            id: memberData.id,
+            name: memberData.text.split(' (')[0], // Store full name
+            username: username // Store username
+        };
+
+        // Check for duplicates using username
+        if (!selectedMembers.some(m => m.username === member.username)) {
+            selectedMembers.push(member);
+            updateSelectedMembers(selectedMembers);
+
+            // Add username as tag if not already present
+            if (!$groupMembersTags.tagsinput('items').includes(username)) {
+                $groupMembersTags.tagsinput('add', username);
+            }
+        } else {
+            showNotification('This member is already tagged', 'warning');
+        }
+    }
+
+    // ============= Flexible Dropdowns Setup =============
+    function setupFlexibleDropdowns() {
+        // Initialize Select2 for area
+        $('#{{ form.area.id_for_label }}').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            tags: true,
+            createTag: function (params) {
+                if (!params.term) return null;
+                return {
+                    id: 'other',
+                    text: params.term,
+                    newOption: true
+                };
+            }
+        }).on('select2:select', function(e) {
+            var $customField = $('#{{ form.area_custom.id_for_label }}');
+            if (e.params.data.newOption) {
+                $customField.show().val(e.params.data.text);
+            } else {
+                $customField.hide().val('');
+            }
+        });
+
+        // Initialize Select2 for tags
+        $('#{{ form.tags.id_for_label }}').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            tags: true,
+            createTag: function (params) {
+                if (!params.term) return null;
+                return {
+                    id: 'other',
+                    text: params.term,
+                    newOption: true
+                };
+            }
+        }).on('select2:select', function(e) {
+            var $customField = $('#{{ form.tags_custom.id_for_label }}');
+            if (e.params.data.newOption) {
+                $customField.show().val(e.params.data.text);
+            } else {
+                $customField.hide().val('');
+            }
+        });
+
+        // Initially hide custom fields
+        $('#{{ form.area_custom.id_for_label }}, #{{ form.tags_custom.id_for_label }}').hide();
+    }
+
+    // ============= Tags Input Handling =============
+    function setupTagsInput() {
+        // Setup regular tags
+        if ($('#{{ form.tags.id_for_label }}').length) {
+            $('#{{ form.tags.id_for_label }}').on('input', function() {
+                $(this).val($(this).val().replace(/\s*,\s*/g, ','));
+            });
+        }
+
+        // Setup group members tags
+        if ($('#{{ form.groupMembers_tags.id_for_label }}').length) {
+            var $groupMembersTags = $('#{{ form.groupMembers_tags.id_for_label }}');
+
+            $groupMembersTags.tagsinput({
+                trimValue: true,
+                maxTags: 10,
+                confirmKeys: [13, 44], // Enter and comma
+                tagClass: 'badge bg-primary'
+            });
+
+            // Initialize with existing tags if any
+            {% if observation.groupMembers_tags %}
+                var existingTags = {{ observation.groupMembers_tags|safe }};
+                existingTags.forEach(function(tag) {
+                    $groupMembersTags.tagsinput('add', tag);
+                });
+            {% endif %}
+
+            // Prevent duplicate tags
+            $groupMembersTags.on('beforeItemAdd', function(event) {
+                if ($groupMembersTags.tagsinput('items').includes(event.item)) {
+                    event.cancel = true;
+                    showNotification('This member is already tagged', 'warning');
+                }
+            });
+
+            // Handle max tags limit
+            $groupMembersTags.on('beforeItemAdd', function(event) {
+                if ($groupMembersTags.tagsinput('items').length >= 10) {
+                    event.cancel = true;
+                    showNotification('Maximum 10 tags allowed', 'warning');
+                }
+            });
+
+            // Handle tag removal
+            $groupMembersTags.on('beforeItemRemove', function(event) {
+                var selectedMembers = getSelectedMembers();
+                selectedMembers = selectedMembers.filter(m => m.username !== event.item);
+                updateSelectedMembers(selectedMembers);
+            });
+
+            // Update on changes
+            $groupMembersTags.on('itemAdded itemRemoved', function() {
+                $(this).trigger('change');
+                updateTagsDisplay();
+            });
+        }
+    }
+
+    // Function to update tags display
+    function updateTagsDisplay() {
+        var $container = $('.tagged-members-container');
+        var $input = $('#{{ form.groupMembers_tags.id_for_label }}');
+        var tags = $input.tagsinput('items');
+
+        $container.empty();
+
+        if (tags.length === 0) {
+            $container.append('<div class="text-muted small p-2">No members tagged</div>');
+        } else {
+            tags.forEach(function(tag) {
+                var tagHtml = `
+                    <div class="tagged-member d-inline-block m-1">
+                        <span class="badge bg-primary d-flex align-items-center">
+                            @${tag}
+                            <button type="button" class="btn-close btn-close-white ms-2 btn-sm"
+                                    onclick="removeMemberTag('${tag}')">
+                            </button>
+                        </span>
+                    </div>`;
+                $container.append(tagHtml);
+            });
+        }
+    }
+
+    // Global function to remove tag
+    window.removeMemberTag = function(tag) {
+        var $input = $('#{{ form.groupMembers_tags.id_for_label }}');
+        $input.tagsinput('remove', tag);
+    };
+
+    // ============= Select2 Group Members Setup =============
+    function setupSelect2() {
+        $('.select2-users').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            ajax: {
+                url: '{% url "user_search" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        term: params.term || '',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: {
+                            more: data.pagination.more
+                        }
+                    };
+                },
+                cache: true
+            },
+            placeholder: 'Search for team members...',
+            minimumInputLength: 2,
+            allowClear: true,
+            templateResult: formatUser,
+            templateSelection: formatUserSelection,
+            escapeMarkup: function(markup) {
+                return markup;
+            }
+        }).on('select2:select', function(e) {
+            addSelectedMember(e.params.data);
+            $(this).val(null).trigger('change'); // Clear selection after adding
+        });
+    }
+
+    function formatUser(user) {
+        if (user.loading) {
+            return '<div class="loading-message">Searching...</div>';
+        }
+        if (!user.text) return '';
+        return '<div class="user-result">' +
+               '<div class="user-name">' + user.text + '</div>' +
+               '</div>';
+    }
+
+    function formatUserSelection(user) {
+        return user.text || '';
+    }
+
+    // ============= Form Validation =============
+    function setupFormValidation() {
+        $('form').on('submit', function(e) {
+            var requiredFields = [
+                '{{ form.department.id_for_label }}',
+                '{{ form.date.id_for_label }}',
+                '{{ form.time.id_for_label }}',
+                '{{ form.area.id_for_label }}',
+                '{{ form.nature_of_issue.id_for_label }}',
+                '{{ form.issue_type.id_for_label }}'
+            ];
+
+            var isValid = true;
+
+            // Check required fields
+            requiredFields.forEach(function(fieldId) {
+                var field = $('#' + fieldId);
+                if (!field.val()) {
+                    isValid = false;
+                    field.addClass('is-invalid');
+                    if (!field.next('.invalid-feedback').length) {
+                        field.after('<div class="invalid-feedback">This field is required.</div>');
+                    }
+                } else {
+                    field.removeClass('is-invalid');
+                    field.next('.invalid-feedback').remove();
+                }
+            });
+
+            // Validate custom fields
+            var areaValue = $('#{{ form.area.id_for_label }}').val();
+            var areaCustomField = $('#{{ form.area_custom.id_for_label }}');
+
+            if (areaValue === 'other' && !areaCustomField.val()) {
+                isValid = false;
+                areaCustomField.addClass('is-invalid');
+                if (!areaCustomField.next('.invalid-feedback').length) {
+                    areaCustomField.after('<div class="invalid-feedback">Please enter a custom area.</div>');
+                }
+            }
+
+            // Validate and prepare group member tags
+            var $groupMembersTags = $('#{{ form.groupMembers_tags.id_for_label }}');
+            var tags = $groupMembersTags.tagsinput('items');
+            var selectedMembers = getSelectedMembers();
+            var memberUsernames = selectedMembers.map(m => m.username);
+            var allTags = [...new Set([...tags, ...memberUsernames])];
+            $groupMembersTags.val(allTags.join(','));
+
+            if (!isValid) {
+                e.preventDefault();
+                showNotification('Please correct the errors before submitting.', 'error');
+                return false;
+            }
+        });
+    }
+
+    // ============= Local Storage Handling =============
+    function setupLocalStorage() {
+        var formId = 'observation-form';
+        var formFields = $('form :input').not(':submit').not(':button');
+
+        // Load saved data
+        formFields.each(function() {
+            var fieldId = $(this).attr('id');
+            var savedValue = localStorage.getItem(formId + '_' + fieldId);
+
+            if (savedValue && fieldId) {
+                if (fieldId === '{{ form.groupMembers_tags.id_for_label }}') {
+                    try {
+                        var savedTags = JSON.parse(savedValue);
+                        var $tagInput = $(this);
+                        savedTags.forEach(function(tag) {
+                            $tagInput.tagsinput('add', tag);
+                        });
+                    } catch (e) {
+                        console.error('Error loading saved group member tags:', e);
+                    }
+                } else if (fieldId === 'selected_members_data') {
+                    try {
+                        updateSelectedMembers(JSON.parse(savedValue));
+                    } catch (e) {
+                        console.error('Error loading saved members:', e);
+                    }
+                } else {
+                    $(this).val(savedValue);
+                }
+            }
+        });
+
+        // Save data on change
+        formFields.on('change', function() {
+            var fieldId = $(this).attr('id');
+            if (fieldId) {
+                var value = $(this).val();
+                if (fieldId === '{{ form.groupMembers_tags.id_for_label }}') {
+                    value = JSON.stringify($(this).tagsinput('items'));
+                }
+                localStorage.setItem(formId + '_' + fieldId, value);
+            }
+        });
+
+        // Clear localStorage on successful form submission
+        $('form').on('submit', function() {
+            if (this.checkValidity()) {
+                formFields.each(function() {
+                    var fieldId = $(this).attr('id');
+                    if (fieldId) {
+                        localStorage.removeItem(formId + '_' + fieldId);
+                    }
+                });
+            }
+        });
+    }
+
+    // ============= Notifications =============
+    function showNotification(message, type = 'info') {
+        // You can replace this with your preferred notification system
+        if (type === 'error') {
+            alert(message);
+        } else {
+            console.log(type + ': ' + message);
+        }
+    }
+
+    // ============= Initialize Everything =============
+    function initializeAll() {
+        initializeDateAndTime();
+        setupFileUploadValidation();
+        setupTagsInput();
+        setupSelect2();
+        setupFlexibleDropdowns();
+        setupFormValidation();
+        setupLocalStorage();
+        updateTagsDisplay();
+    }
+
+    // Start initialization
+    initializeAll();
+});
+</script>
+{% endblock %}

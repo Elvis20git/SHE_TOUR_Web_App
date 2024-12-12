@@ -1,0 +1,164 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Notifications</h4>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm mark-all-read">
+                                <i class="fa fa-check-circle"></i> Mark All as Read
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if notifications %}
+                            <div class="list-group notification-list">
+                                {% for notification in notifications %}
+                                    <div class="list-group-item {% if not notification.read %}unread{% endif %}">
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <div class="notification-content">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <!-- Notification Type Icon -->
+                                                    {% if notification.notification_type == 'assignment' %}
+                                                        <i class="fa fa-tasks text-primary me-2"></i>
+                                                    {% elif notification.notification_type == 'status_change' %}
+                                                        <i class="fa fa-refresh text-info me-2"></i>
+                                                    {% elif notification.notification_type == 'deadline_approaching' %}
+                                                        <i class="fa fa-clock-o text-warning me-2"></i>
+                                                    {% elif notification.notification_type == 'overdue' %}
+                                                        <i class="fa fa-exclamation-triangle text-danger me-2"></i>
+                                                    {% elif notification.notification_type == 'comment' %}
+                                                        <i class="fa fa-comment text-success me-2"></i>
+                                                    {% elif notification.notification_type == 'mentioned' %}
+                                                        <i class="fa fa-at text-info me-2"></i>
+                                                    {% endif %}
+
+                                                    <h6 class="mb-0">{{ notification.title }}</h6>
+                                                </div>
+                                                <p class="mb-1">{{ notification.message }}</p>
+                                                <small class="text-muted">
+                                                    {{ notification.created_at|naturaltime }}
+                                                    {% if notification.related_observation %}
+                                                        • <a href="{% url 'observation_detail' notification.related_observation.id %}" class="text-primary">
+                                                            View Observation
+                                                        </a>
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                            <div class="notification-actions">
+                                                {% if not notification.read %}
+                                                    <button class="btn btn-sm btn-outline-secondary mark-read"
+                                                            data-notification-id="{{ notification.id }}">
+                                                        <i class="fa fa-check"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            {% if notifications.has_other_pages %}
+                                <div class="mt-4">
+                                    <nav aria-label="Notification navigation">
+                                        <ul class="pagination justify-content-center">
+                                            {% if notifications.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ notifications.previous_page_number }}">Previous</a>
+                                                </li>
+                                            {% endif %}
+
+                                            {% for num in notifications.paginator.page_range %}
+                                                <li class="page-item {% if notifications.number == num %}active{% endif %}">
+                                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                </li>
+                                            {% endfor %}
+
+                                            {% if notifications.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ notifications.next_page_number }}">Next</a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </nav>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fa fa-bell-o fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No notifications yet</h5>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .notification-list .unread {
+        background-color: rgba(0, 123, 255, 0.05);
+        border-left: 3px solid #007bff;
+    }
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+    .notification-actions {
+        margin-left: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Mark single notification as read
+    $('.mark-read').click(function() {
+        const notificationId = $(this).data('notification-id');
+        const $notificationItem = $(this).closest('.list-group-item');
+
+        $.ajax({
+            url: '{% url "mark_notification_read" %}',
+            method: 'POST',
+            data: {
+                notification_id: notificationId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $notificationItem.removeClass('unread');
+                    $('.mark-read', $notificationItem).remove();
+                }
+            }
+        });
+    });
+
+    // Mark all notifications as read
+    $('.mark-all-read').click(function() {
+        $.ajax({
+            url: '{% url "mark_all_notifications_read" %}',
+            method: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('.notification-list .unread').removeClass('unread');
+                    $('.mark-read').remove();
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

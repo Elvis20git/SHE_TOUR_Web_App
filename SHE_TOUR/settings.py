@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from django.core.checks import templates
+from dotenv import load_dotenv
+from celery.schedules import crontab
+load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +32,7 @@ SECRET_KEY = 'django-insecure-(tv^wvzv)qf88py&aohq^sqm9grr86dc1az5f7%*5(00@u)a9n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,8 +46,24 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'SHE.apps.SheConfig',
     'sweetify',
+    'django.contrib.postgres',
+    'widget_tweaks',
+    'channels',
+    'django_celery_results',
+    'django.contrib.humanize',
 
 ]
+
+ASGI_APPLICATION = 'SHE_TOUR.asgi.py'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,13 +79,17 @@ MIDDLEWARE = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 ROOT_URLCONF = 'SHE_TOUR.urls'
-
+# LOGIN_URL = 'login'
+# LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'  # URL name for the login page
+LOGIN_REDIRECT_URL = 'dashboard'  # URL name where to redirect after login
+LOGOUT_REDIRECT_URL = 'login'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'SHE'/ 'templates'],
+
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +97,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'SHE.context_processors.navbar_context',
             ],
         },
     },
@@ -84,7 +112,7 @@ WSGI_APPLICATION = 'SHE_TOUR.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'SHEdb',
+        'NAME': 'SheSysDB',
         'USER': 'postgres',
         'PASSWORD': 'andromeda',
         'HOST': 'localhost',
@@ -92,7 +120,17 @@ DATABASES = {
     }
 }
 
-
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_CONNECTION_POOL = True
+EMAIL_MAX_POOL_CONNECTIONS = 10
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+SITE_URL = 'http://localhost:8000'
+# DEFAULT_SITE_URL = os.getenv('DEFAULT_SITE_URL')
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -129,10 +167,18 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'SHE.CustomUser'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
 
 
 CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
@@ -141,3 +187,38 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Africa/Cairo'
 CELERY_ENABLE_UTC = True
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+CELERY_BEAT_SCHEDULE = {
+    'daily-she-observation-report': {
+        'task': 'SHE.tasks.generate_daily_observation_report',
+        'schedule': crontab(minute='*/5'),  # Runs at 1 AM every day
+        # 'options': {
+        #     'expires': 3600,  # Task expires after 1 hour
+        # },
+    },
+    # You can add other scheduled tasks here
+}
+
+CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes

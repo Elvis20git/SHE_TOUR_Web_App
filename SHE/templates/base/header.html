@@ -1,0 +1,254 @@
+{# base/header.html #}
+{% load static %}
+{% load humanize %}
+<header class="topbar-nav">
+    <nav class="navbar navbar-expand fixed-top">
+        <ul class="navbar-nav mr-auto align-items-center">
+            <li class="nav-item">
+                <a class="nav-link toggle-menu" href="javascript:void(0);">
+                    <i class="icon-menu menu-icon"></i>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="navbar-nav align-items-center right-nav-link">
+            <li class="nav-item">
+                <a href="javascript:void(0);" class="nav-link" data-toggle="modal" data-target="#notificationModal">
+                    <i class="fa fa-bell-o"></i>
+                    {% if unread_notifications_count %}
+                    <span class="badge badge-light">{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
+                    <span class="user-profile">
+                        <img src="https://via.placeholder.com/110x110" class="img-circle" alt="user avatar">
+                    </span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li class="dropdown-item user-details">
+                        <div class="media">
+                            <div class="avatar">
+                                <img class="align-self-start mr-3" src="https://via.placeholder.com/110x110" alt="user avatar">
+                            </div>
+                            <div class="media-body">
+                                <h6 class="mt-2 user-title">{{ user_full_name }}</h6>
+                                <p class="user-subtitle">{{ user.email }}</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li class="dropdown-item">
+                        <a href="{% url 'notification_preferences' %}">
+                            <i class="icon-settings mr-2"></i> Preferences
+                        </a>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li class="dropdown-item">
+                        <a href="{% url 'logout' %}">
+                            <i class="icon-power mr-2"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Notification Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalLabel">
+                    <i class="fa fa-bell-o mr-2"></i>Notifications
+                </h5>
+                <div class="ml-auto mr-2">
+                    <button class="btn btn-outline-primary btn-sm mark-all-read">
+                        <i class="fa fa-check-circle"></i> Mark All as Read
+                    </button>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% if notifications %}
+                    <div class="list-group notification-list">
+                        {% for notification in notifications %}
+                            <div class="list-group-item {% if not notification.read %}unread{% endif %}">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div class="notification-content">
+                                        <div class="d-flex align-items-center mb-1">
+                                            {% if notification.notification_type == 'assignment' %}
+                                                <i class="fa fa-tasks text-primary mr-2"></i>
+                                            {% elif notification.notification_type == 'status_change' %}
+                                                <i class="fa fa-refresh text-info mr-2"></i>
+                                            {% elif notification.notification_type == 'deadline_approaching' %}
+                                                <i class="fa fa-clock-o text-warning mr-2"></i>
+                                            {% elif notification.notification_type == 'overdue' %}
+                                                <i class="fa fa-exclamation-triangle text-danger mr-2"></i>
+                                            {% elif notification.notification_type == 'comment' %}
+                                                <i class="fa fa-comment text-success mr-2"></i>
+                                            {% elif notification.notification_type == 'mentioned' %}
+                                                <i class="fa fa-at text-info mr-2"></i>
+                                            {% endif %}
+                                            <h6 class="mb-0">{{ notification.title }}</h6>
+                                        </div>
+                                        <p class="mb-1">{{ notification.message }}</p>
+                                        <small class="text-muted">
+                                            {{ notification.created_at|naturaltime }}
+                                            {% if notification.related_observation %}
+                                                • <a href="{% url 'observation_detail' notification.related_observation.id %}" class="text-primary">
+                                                    View Observation
+                                                </a>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div class="notification-actions">
+                                        {% if not notification.read %}
+                                            <button class="btn btn-sm btn-outline-secondary mark-read"
+                                                    data-notification-id="{{ notification.id }}">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if notifications.has_other_pages %}
+                        <div class="mt-4">
+                            <nav aria-label="Notification navigation">
+                                <ul class="pagination justify-content-center">
+                                    {% if notifications.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="javascript:void(0);" data-page="{{ notifications.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for num in notifications.paginator.page_range %}
+                                        <li class="page-item {% if notifications.number == num %}active{% endif %}">
+                                            <a class="page-link" href="javascript:void(0);" data-page="{{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endfor %}
+
+                                    {% if notifications.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="javascript:void(0);" data-page="{{ notifications.next_page_number }}">Next</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fa fa-bell-o fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No notifications yet</h5>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .notification-list .unread {
+        background-color: rgba(0, 123, 255, 0.05);
+        border-left: 3px solid #007bff;
+    }
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
+    .notification-actions {
+        margin-left: 1rem;
+    }
+    #notificationModal .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    .modal-header .close {
+        padding: 1rem;
+        margin: -1rem -1rem -1rem auto;
+    }
+</style>
+
+<script>
+$(document).ready(function() {
+    // Handle pagination clicks
+    $('.pagination .page-link').click(function(e) {
+        e.preventDefault();
+        const page = $(this).data('page');
+        loadNotifications(page);
+    });
+
+    // Load notifications via AJAX
+    function loadNotifications(page) {
+        $.get('{% url "notification_list" %}', { page: page }, function(data) {
+            $('#notificationModal .modal-body').html(data);
+        });
+    }
+
+    // Mark single notification as read
+    $(document).on('click', '.mark-read', function(e) {
+        e.preventDefault();
+        const notificationId = $(this).data('notification-id');
+        const $notificationItem = $(this).closest('.list-group-item');
+
+        $.ajax({
+            url: '{% url "mark_notification_read" %}',
+            method: 'POST',
+            data: {
+                notification_id: notificationId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $notificationItem.removeClass('unread');
+                    $('.mark-read', $notificationItem).remove();
+                    updateUnreadCount();
+                }
+            }
+        });
+    });
+
+    // Mark all notifications as read
+    $('.mark-all-read').click(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '{% url "mark_all_notifications_read" %}',
+            method: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('.notification-list .unread').removeClass('unread');
+                    $('.mark-read').remove();
+                    updateUnreadCount();
+                }
+            }
+        });
+    });
+
+    // Update unread count badge
+    function updateUnreadCount() {
+        $.get('{% url "get_unread_count" %}', function(response) {
+            const badge = $('.nav-link .badge');
+            if (response.count > 0) {
+                if (badge.length) {
+                    badge.text(response.count);
+                } else {
+                    $('.nav-link .fa-bell-o').after('<span class="badge badge-light">' + response.count + '</span>');
+                }
+            } else {
+                badge.remove();
+            }
+        });
+    }
+});
+</script>

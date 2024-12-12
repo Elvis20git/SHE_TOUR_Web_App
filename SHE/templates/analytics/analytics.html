@@ -1,0 +1,712 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}SHE TOUR Dashboard{% endblock %}
+
+{% block content %}
+<style>
+.modal-content {
+    background-color: #2c2c2c;
+    color: #fff;
+    border-radius: 5px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #404040;
+    padding: 1rem;
+}
+
+.modal-header .btn-close {
+    color: #fff;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    padding: 0;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-footer {
+    border-top: 1px solid #404040;
+    padding: 1rem;
+}
+
+.table {
+    color: #fff;
+    margin-bottom: 0;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255,255,255,0.05);
+}
+
+.badge {
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #000;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-primary {
+    background-color: #007bff !important;
+}
+
+/* Modal transition animations */
+.modal.fade .modal-dialog {
+    transition: transform .3s ease-out;
+}
+
+.modal.fade.show .modal-dialog {
+    transform: none;
+}
+
+/* Close button positioning */
+.modal-header .btn-close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+}
+
+/* Pagination styles */
+.pagination {
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.pagination .page-link {
+    background-color: #404040;
+    border-color: #2c2c2c;
+    color: #fff;
+}
+
+.pagination .page-link:hover {
+    background-color: #505050;
+}
+
+/* Per page selector */
+.per-page-select {
+    background-color: #404040;
+    color: #fff;
+    border: 1px solid #2c2c2c;
+    border-radius: 4px;
+    padding: 0.375rem 0.75rem;
+}
+
+/* Modal table scrolling */
+.modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.modal-body table {
+    margin-top: 10px;
+}
+
+/* Search bar styling */
+.modal-search {
+    position: sticky;
+    top: 0;
+    background-color: #2c2c2c;
+    padding: 10px 0;
+    z-index: 1;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    background-color: #363636;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.search-input::placeholder {
+    color: #aaa;
+}
+
+/* Add this to your existing style section */
+input[type="date"] {
+    background-color: #2c2c2c !important;
+    border: 1px solid #404040;
+    color: #fff !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+</style>
+
+<!--Start Dashboard Content-->
+<div class="card mt-3">
+    <div class="card-content">
+        <div class="row row-group m-0">
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ total_observations }} <span class="float-right"><i class="zmdi zmdi-eye"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:100%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Total Observations</p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ pending_observations }} <span class="float-right"><i class="zmdi zmdi-time"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:{{ pending_percentage }}%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Pending Observations <span class="float-right">{{ pending_percentage }}%</span></p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ high_priority_count }} <span class="float-right"><i class="zmdi zmdi-alert-triangle"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:{{ high_priority_percentage }}%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">High Priority Issues <span class="float-right">{{ high_priority_percentage }}%</span></p>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6 col-xl-3 border-light">
+                <div class="card-body">
+                    <h5 class="text-white mb-0">{{ resolved_count }} <span class="float-right"><i class="zmdi zmdi-check-circle"></i></span></h5>
+                    <div class="progress my-3" style="height:3px;">
+                        <div class="progress-bar" style="width:{{ resolved_percentage }}%"></div>
+                    </div>
+                    <p class="mb-0 text-white small-font">Resolved Issues <span class="float-right">{{ resolved_percentage }}%</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <label class="text-white">Start Date</label>
+                <input type="date" id="startDate" class="form-control bg-dark text-white">
+            </div>
+            <div class="col-md-4">
+                <label class="text-white">End Date</label>
+                <input type="date" id="endDate" class="form-control bg-dark text-white">
+            </div>
+            <div class="col-md-4">
+                <label class="text-white">&nbsp;</label>
+                <button id="applyFilter" class="btn btn-light d-block w-100">Apply Filter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-8">
+        <div class="card" style="height: 95%">
+            <div class="card-header">Observations per Department
+                <div class="card-action">
+                    <div class="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+                            <i class="icon-options"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#">Last 7 Days</a>
+                            <a class="dropdown-item" href="#">Last 30 Days</a>
+                            <a class="dropdown-item" href="#">This Month</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-1" style="position: relative; height: 400px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4 col-xl-4">
+        <div class="card">
+            <div class="card-header">Priority Distribution
+                <div class="card-action">
+                    <div class="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown">
+                            <i class="icon-options"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="#">This Week</a>
+                            <a class="dropdown-item" href="#">This Month</a>
+                            <a class="dropdown-item" href="#">This Year</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container-2" style="position: relative; height: 300px;">
+                    <canvas id="priorityChart"></canvas>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center">
+                    <tbody>
+                        <tr>
+                            <td><i class="fa fa-circle text-white mr-2"></i>Unsafe Condition</td>
+                            <td>{{ unsafe_condition_count }}</td>
+                            <td>{{ unsafe_condition_percentage }}</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa fa-circle text-light-1 mr-2"></i>Near Miss</td>
+                            <td>{{ near_miss_count }}</td>
+                            <td>{{ near_miss_percentage }}</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa fa-circle text-light-2 mr-2"></i>BBS</td>
+                            <td>{{ bbs_count }}</td>
+                            <td>{{ bbs_percentage }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Recent Observations
+                <div class="card-action">
+                    <a href="{% url 'observation_list' %}" class="btn btn-light">View All</a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-items-center table-flush table-borderless">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Reporter</th>
+                            <th>Issue Type</th>
+                            <th>Priority</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for observation in recent_observations %}
+                        <tr>
+                            <td>{{ observation.department }}</td>
+                            <td>{{ observation.reporter.get_full_name }}</td>
+                            <td>{{ observation.get_issue_type_display }}</td>
+                            <td>
+                                <span class="badge {% if observation.priority == 'high' %}badge-danger{% elif observation.priority == 'medium' %}badge-warning{% else %}badge-info{% endif %}">
+                                    {{ observation.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>{{ observation.date }}</td>
+                            <td>
+                                <div class="progress shadow" style="height: 3px;">
+                                    <div class="progress-bar" role="progressbar"
+                                         style="width: {% if observation.status == 'closed' %}100{% elif observation.status == 'in_progress' %}50{% else %}25{% endif %}%">
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="observationsModal" tabindex="-1" aria-labelledby="observationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="observationsModalLabel">Observations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-search">
+                    <input type="text" class="search-input" placeholder="Search observations..." id="observationsSearchInput">
+                </div>
+                <table class="table table-striped" id="observationsTable">
+                    <thead>
+                        <tr>
+                            <th>Issue</th>
+                            <th>Department</th>
+                            <th>Area</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="observationsTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="exportToExcel('observationsTable', 'priority-observations')">
+                    <i class="fa fa-file-excel"></i> Export to Excel
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Modal -->
+<div class="modal fade" id="departmentModal" tabindex="-1" aria-labelledby="departmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="departmentModalLabel">Department Observations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-search">
+                    <input type="text" class="search-input" placeholder="Search observations..." id="departmentSearchInput">
+                </div>
+                <table class="table table-striped" id="departmentTable">
+                    <thead>
+                        <tr>
+                            <th>Issue</th>
+                            <th>Priority</th>
+                            <th>Area</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="departmentTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="exportToExcel('departmentTable', 'department-observations')">
+                    <i class="fa fa-file-excel"></i> Export to Excel
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- jQuery first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Then Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Then Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const detailedObservations = {{ detailed_observations|safe }};
+const departmentObservations = {{ department_observations|safe }};
+
+// Department Column Chart
+const trendChartCtx = document.getElementById('trendChart').getContext('2d');
+const departmentData = {{ observations_by_department|safe }};
+
+const departments = departmentData.map(item => item.department);
+const departmentCounts = departmentData.map(item => item.count);
+
+new Chart(trendChartCtx, {
+    type: 'bar',
+    data: {
+        labels: departments,
+        datasets: [{
+            label: 'Observations',
+            data: departmentCounts,
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderColor: '#ffffff',
+            borderWidth: 1,
+            borderRadius: 5,
+            barThickness: 'flex',
+            maxBarThickness: 50
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(255,255,255,0.1)'
+                },
+                ticks: {
+                    color: '#fff'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#fff'
+                }
+            }
+        },
+        onClick: (event, elements) => {
+            if (elements.length > 0) {
+                const index = elements[0].index;
+                const department = departments[index];
+                showDepartmentModal(department);
+            }
+        }
+    }
+});
+
+// Search functionality for department modal
+document.getElementById('departmentSearchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#departmentTableBody tr');
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Search functionality for observations modal
+document.getElementById('observationsSearchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('#observationsTableBody tr');
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Department Modal function
+function showDepartmentModal(department) {
+    const modalTitle = document.getElementById('departmentModalLabel');
+    if (!modalTitle) return;
+    modalTitle.textContent = `${department} Department Observations`;
+
+    const observations = departmentObservations[department];
+    if (!observations) return;
+
+    const tableBody = document.getElementById('departmentTableBody');
+    if (!tableBody) return;
+
+    try {
+        // Clear search input when opening modal
+        document.getElementById('departmentSearchInput').value = '';
+
+        tableBody.innerHTML = observations.map(obs => `
+            <tr>
+                <td>${obs.nature_of_issue}</td>
+                <td>${obs.priority}</td>
+                <td>${obs.area}</td>
+                <td>${obs.location_details}</td>
+                <td>${obs.status}</td>
+                <td>${new Date(obs.created_at).toLocaleDateString()}</td>
+            </tr>
+        `).join('');
+
+        const $modal = $('#departmentModal');
+        if ($modal.length === 0) return;
+        $modal.modal('show');
+    } catch (error) {
+        console.error('Error showing modal:', error);
+    }
+}
+
+function getPriorityBadgeClass(priority) {
+    switch(priority.toLowerCase()) {
+        case 'high':
+            return 'danger';
+        case 'medium':
+            return 'warning';
+        case 'low':
+            return 'info';
+        default:
+            return 'secondary';
+    }
+}
+
+// Priority Distribution Chart
+const priorityChartCtx = document.getElementById('priorityChart').getContext('2d');
+const priorityData = {{ observations_by_priority|safe }};
+
+const priorities = priorityData.map(item => item.priority);
+const counts = priorityData.map(item => item.count);
+
+new Chart(priorityChartCtx, {
+    type: 'doughnut',
+    data: {
+        labels: priorities,
+        datasets: [{
+            data: counts,
+            backgroundColor: [
+                '#ff6b6b',  // High
+                '#ffd93d',  // Medium
+                '#6c757d'   // Low
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#fff'
+                }
+            }
+        },
+        onClick: (event, elements) => {
+            if (elements.length > 0) {
+                const index = elements[0].index;
+                const priority = priorities[index];
+                showObservationsModal(priority);
+            }
+        }
+    }
+});
+
+// Modal function for observations
+function showObservationsModal(priority) {
+    const modalTitle = document.getElementById('observationsModalLabel');
+    if (!modalTitle) return;
+    modalTitle.textContent = `${priority} Priority Observations`;
+
+    const observations = detailedObservations[priority];
+    if (!observations) return;
+
+    const tableBody = document.getElementById('observationsTableBody');
+    if (!tableBody) return;
+
+    try {
+        // Clear search input when opening modal
+        document.getElementById('observationsSearchInput').value = '';
+
+        tableBody.innerHTML = observations.map(obs => `
+            <tr>
+                <td>${obs.nature_of_issue}</td>
+                <td>${obs.department}</td>
+                <td>${obs.area}</td>
+                <td>${obs.location_details}</td>
+                <td>${obs.status}</td>
+                <td>${new Date(obs.created_at).toLocaleDateString()}</td>
+            </tr>
+        `).join('');
+
+        const $modal = $('#observationsModal');
+        if ($modal.length === 0) return;
+        $modal.modal('show');
+    } catch (error) {
+        console.error('Error showing modal:', error);
+    }
+}
+
+function getStatusBadgeClass(status) {
+    switch(status.toLowerCase()) {
+        case 'open':
+            return 'warning';
+        case 'closed':
+            return 'success';
+        default:
+            return 'secondary';
+    }
+}
+
+// Add this at the end of your existing script
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date inputs with last 30 days
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+    // Add click handler for filter button
+    document.getElementById('applyFilter').addEventListener('click', function() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (startDate && endDate) {
+            // Reload page with date parameters
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('start_date', startDate);
+            currentUrl.searchParams.set('end_date', endDate);
+            window.location.href = currentUrl.toString();
+        }
+    });
+
+    // Set date inputs from URL parameters if they exist
+    const urlParams = new URLSearchParams(window.location.search);
+    const startDateParam = urlParams.get('start_date');
+    const endDateParam = urlParams.get('end_date');
+
+    if (startDateParam) {
+        document.getElementById('startDate').value = startDateParam;
+    }
+    if (endDateParam) {
+        document.getElementById('endDate').value = endDateParam;
+    }
+});
+
+function exportToExcel(tableID, filename) {
+    // Get the table
+    const table = document.getElementById(tableID);
+    if (!table) return;
+
+    // Create a workbook
+    const wb = XLSX.utils.book_new();
+
+    // Get all visible rows (respect search filter)
+    const visibleRows = Array.from(table.querySelectorAll('tbody tr'))
+        .filter(row => row.style.display !== 'none');
+
+    // Create a new table with only visible rows
+    const tempTable = table.cloneNode(true);
+    const tempTbody = tempTable.querySelector('tbody');
+    tempTbody.innerHTML = '';
+    visibleRows.forEach(row => tempTbody.appendChild(row.cloneNode(true)));
+
+    // Convert table to worksheet
+    const ws = XLSX.utils.table_to_sheet(tempTable);
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+    // Generate Excel file and trigger download
+    XLSX.writeFile(wb, `${filename}-${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+</script>
+{% endblock %}

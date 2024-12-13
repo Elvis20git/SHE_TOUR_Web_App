@@ -51,52 +51,52 @@
 		 	<div class="text-center">
 		 		<img src="{% static 'images/logo-icon.png' %}" alt="logo icon">
 		 	</div>
-		  <div class="card-title text-uppercase text-center py-3">Sign In</div>
-		    <form method="post" id="login-form">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="exampleInputUsername" class="sr-only">Username</label>
-        <div class="position-relative has-icon-right">
-            {{ form.username }}
-            <div class="form-control-position">
-                <i class="icon-user"></i>
-            </div>
-        </div>
-        {% if form.username.errors %}
-            <div class="text-danger">{{ form.username.errors }}</div>
-        {% endif %}
-    </div>
-    <div class="form-group">
-        <label for="exampleInputPassword" class="sr-only">Password</label>
-        <div class="position-relative has-icon-right">
-            {{ form.password }}
-            <div class="form-control-position">
-                <i class="icon-lock"></i>
-            </div>
-        </div>
-        {% if form.password.errors %}
-            <div class="text-danger">{{ form.password.errors }}</div>
-        {% endif %}
-    </div>
-    <div class="form-row">
-        <div class="form-group col-6">
-            <div class="icheck-material-white">
-                {{ form.remember_me }}
-                <label for="user-checkbox">Remember me</label>
-            </div>
-        </div>
-        <div class="form-group col-6 text-right">
-            <a href="{% url 'password_reset' %}">Reset Password</a>
-        </div>
-    </div>
-    {% if form.non_field_errors %}
-        <div class="alert alert-danger">
-            {{ form.non_field_errors }}
-        </div>
-    {% endif %}
-    <button type="submit" class="btn btn-light btn-block">Sign In</button>
-</form>
-		   </div>
+              <div class="card-title text-uppercase text-center py-3">Sign In</div>
+                <form method="post" id="login-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="exampleInputUsername" class="sr-only">Username</label>
+                        <div class="position-relative has-icon-right">
+                            {{ form.username }}
+                            <div class="form-control-position">
+                                <i class="icon-user"></i>
+                            </div>
+                        </div>
+                        {% if form.username.errors %}
+                            <div class="text-danger">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword" class="sr-only">Password</label>
+                        <div class="position-relative has-icon-right">
+                            {{ form.password }}
+                            <div class="form-control-position">
+                                <i class="icon-lock"></i>
+                            </div>
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="text-danger">{{ form.password.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <div class="icheck-material-white">
+                                {{ form.remember_me }}
+                                <label for="user-checkbox">Remember me</label>
+                            </div>
+                        </div>
+                        <div class="form-group col-6 text-right">
+                            <a href="{% url 'password_reset' %}">Reset Password</a>
+                        </div>
+                    </div>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-light btn-block">Sign In</button>
+                </form>
+               </div>
 		  </div>
 		  <div class="card-footer text-center py-3">
 		    <p class="text-warning mb-0">Do not have an account? <a href="{% url 'register' %}"> Sign Up here</a></p>

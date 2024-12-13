@@ -19,27 +19,6 @@ from SHE.models import (
     NotificationPreference,
     Notification, ObservationAttachment
 )
-
-
-
-# class CustomLoginForm(AuthenticationForm):
-#     username = forms.CharField(widget=forms.TextInput(
-#         attrs={'class': 'form-control input-shadow', 'placeholder': 'Enter Username', 'id': 'exampleInputUsername'}
-#     ))
-#     password = forms.CharField(widget=forms.PasswordInput(
-#         attrs={'class': 'form-control input-shadow', 'placeholder': 'Enter Password', 'id': 'exampleInputPassword'}
-#     ))
-#     remember_me = forms.BooleanField(required=False, initial=True, widget=forms.CheckboxInput(
-#         attrs={'class': 'icheck-material-white', 'id': 'user-checkbox'}
-#     ))
-#
-#     class Meta:
-#         model = get_user_model()
-#         fields = ['username', 'password', 'remember_me']
-#
-#
-#
-#
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django import forms
@@ -235,52 +214,6 @@ class CustomLoginForm(AuthenticationForm):
         model = CustomUser
         fields = ['username', 'password', 'remember_me']
 
-
-# class CustomUserRegistrationForm(UserCreationForm):
-#     first_name = forms.CharField(widget=forms.TextInput(
-#         attrs={'class': 'form-control input-shadow', 'placeholder': 'Enter First Name'}
-#     ))
-#     last_name = forms.CharField(widget=forms.TextInput(
-#         attrs={'class': 'form-control input-shadow', 'placeholder': 'Enter Last Name'}
-#     ))
-#     email = forms.EmailField(widget=forms.EmailInput(
-#         attrs={'class': 'form-control input-shadow', 'placeholder': 'Enter Your Email ID'}
-#     ))
-#     department = forms.CharField(widget=forms.TextInput(
-#         attrs={'class': 'form-control input-shadow', 'placeholder': 'Enter Department'}
-#     ))
-#     role = forms.ChoiceField(
-#         choices=CustomUser.ROLE_CHOICES,
-#         widget=forms.Select(attrs={'class': 'form-control input-shadow'})
-#     )
-#     password1 = forms.CharField(
-#         label='Password',
-#         widget=forms.PasswordInput(attrs={'class': 'form-control input-shadow', 'placeholder': 'Enter Password'})
-#     )
-#     password2 = forms.CharField(
-#         label='Confirm Password',
-#         widget=forms.PasswordInput(attrs={'class': 'form-control input-shadow', 'placeholder': 'Confirm Password'})
-#     )
-#
-#     class Meta:
-#         model = CustomUser
-#         fields = ['username', 'first_name', 'last_name', 'email', 'department', 'role', 'password1', 'password2']
-#
-#     def save(self, commit=True):
-#         user = super().save(commit=False)
-#         user.email = self.cleaned_data['email']
-#         user.department = self.cleaned_data['department']
-#         user.role = self.cleaned_data['role']
-#
-#         if commit:
-#             user.save()
-#             # Create notification preferences
-#             NotificationPreference.objects.create(
-#                 user=user,
-#                 email_notifications=True,
-#                 reminder_frequency=1
-#             )
-#         return user
 
 
 class FeedbackForm(forms.ModelForm):

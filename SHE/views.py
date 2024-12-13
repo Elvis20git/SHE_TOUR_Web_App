@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views import View
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -40,37 +41,12 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView
 )
+from django.db.models import Count
+from datetime import datetime
 
-# Authentication Views
-# class CustomLoginView(LoginView):
-#     form_class = CustomLoginForm
-#     template_name = 'registration/login.html'
-#
-#     def form_valid(self, form):
-#         remember_me = form.cleaned_data.get('remember_me')
-#         if not remember_me:
-#             self.request.session.set_expiry(0)
-#         return super().form_valid(form)
-#
-#
-# class CustomUserRegistrationView(CreateView):
-#     model = CustomUser
-#     form_class = CustomUserRegistrationForm
-#     template_name = 'registration/register.html'
-#     success_url = reverse_lazy('user_list')
-#
-#     def test_func(self):
-#         return self.request.user.is_authenticated and self.request.user.is_administrator
-#
-#     def form_valid(self, form):
-#         response = super().form_valid(form)
-#         messages.success(self.request, f'Account created for {form.cleaned_data["username"]}')
-#         return response
-#
+
 
 logger = logging.getLogger(__name__)
-
-
 class CustomLoginView(LoginView):
     form_class = CustomLoginForm
     template_name = 'registration/login.html'
@@ -1108,14 +1084,13 @@ def get_profile_data(request):
 
 # Analytics Views
 
-from django.db.models import Count
-from datetime import datetime
+
 
 def analytics_dashboard(request):
     if not request.user.is_authenticated:
         raise PermissionDenied("Please login to access this page.")
 
-    if not request.user.is_manager_or_above:
+    if not request.user:
         raise PermissionDenied("You don't have permission to access analytics.")
 
     try:
